@@ -14,16 +14,16 @@ namespace SalesReach.Domain.Enums.Extensions
                             .GetName();
         }
 
-        public static T ConvertToEnum<T>(string value)
-        {
-            if (Enum.TryParse<T>(value, out T result))
-            {
-                return result;
-            }
-            else
-            {
-                throw new ArgumentException($"O valor '{value}' não é válido para o enum {typeof(T).Name}.");
-            }
-        }
+        //public static T ConvertToEnum<T>(string value)
+        //{
+        //    if (Enum.TryParse<T>(value, out T result))
+        //    {
+        //        return result;
+        //    }
+        //    else
+        //    {
+        //        throw new ArgumentException($"O valor '{value}' não é válido para o enum {typeof(T).Name}.");
+        //    }
+        //}
     }         
 }

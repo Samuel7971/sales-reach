@@ -24,7 +24,7 @@ namespace SalesReach.Domain.Entities
             DataCadastro = dataCadastro;
         }
 
-        public void IsValidaPessoa(string nome, PessoaTipo pessoaTipo, DateTime dataNascimento)
+        private void IsValidaPessoa(string nome, PessoaTipo pessoaTipo, DateTime dataNascimento)
         {
             DomainValidationException.When(string.IsNullOrEmpty(nome), "Obrigatorio informar campo Nome.");
             DomainValidationException.When(!IsValidaDataNascimento(dataNascimento), "Data Nascimento informada é inválida.");
