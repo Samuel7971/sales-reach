@@ -1,4 +1,5 @@
 ﻿using SalesReach.Domain.Enums;
+using SalesReach.Domain.Enums.Extensions;
 using SalesReach.Domain.Validations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -51,10 +52,11 @@ namespace SalesReach.Domain.Entities
             PessoaTipo = pessoaTipo;
             DataNascimento = dataNascimento;
             Status = status;
+            DataAtualizacao = DateTime.Now;
         }
 
         public static implicit operator string(Pessoa pessoa)
-            => $@"{pessoa.Id}, {pessoa.Nome}, {pessoa.Status}, {pessoa.DataNascimento}, {pessoa.DataAtualizacao}, {pessoa.DataCadastro}";
+            => $@"{pessoa.Id}, {pessoa.Nome}, {pessoa.PessoaTipo.DisplayName()}, {pessoa.DataNascimento}, {pessoa.Status}, {pessoa.DataAtualizacao}, {pessoa.DataCadastro}";
 
         public static implicit operator Pessoa(string input)
         {
@@ -65,7 +67,7 @@ namespace SalesReach.Domain.Entities
                                  pessoaTipo: Enum.Parse<PessoaTipo>(data[2]), 
                                  dataNascimento: DateTime.Parse(data[3]), 
                                  status: bool.Parse(data[4]), 
-                                 dataAtualizacao: DateTime.Parse(data[5]), 
+                                 dataAtualizacao: data[5] != null ? DateTime.Parse(data[5]) : DateTime.Parse(data[6]), 
                                  dataCadastro: DateTime.Parse(data[6])
                               );
         }
