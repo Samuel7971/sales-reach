@@ -1,6 +1,7 @@
 ﻿using SalesReach.Domain.Enums;
 using SalesReach.Domain.Enums.Extensions;
 using SalesReach.Domain.Validations;
+using SalesReach.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SalesReach.Domain.Entities
@@ -11,6 +12,8 @@ namespace SalesReach.Domain.Entities
         public string Nome { get; private set; }
         public PessoaTipo PessoaTipo { get; private set; }
         public DateTime DataNascimento { get; private set; }
+        public Documento Documento{ get; private set; }
+        public Endereco Endreco { get; private set; }
 
         public Pessoa() { }
 
@@ -29,7 +32,7 @@ namespace SalesReach.Domain.Entities
         {
             DomainValidationException.When(string.IsNullOrEmpty(nome), "Obrigatorio informar campo Nome.");
             DomainValidationException.When(!IsValidaDataNascimento(dataNascimento), "Data Nascimento informada é inválida.");
-            DomainValidationException.When(pessoaTipo < 0, "É preciso informar se o cadastro é de Pessoa Fisíca ou Juridica.");
+            //DomainValidationException.When(pessoaTipo < 0, "É preciso informar se o cadastro é de Pessoa Fisíca ou Juridica.");
         }
 
         public void Inserir(string nome, PessoaTipo pessoaTipo, DateTime dataNascimento, bool status)
@@ -74,5 +77,9 @@ namespace SalesReach.Domain.Entities
 
         private bool IsValidaDataNascimento(DateTime dataNascimento)
             => dataNascimento <= DateTime.Now.AddYears(-16);
+
+        private static PessoaTipo VerificarPessoaTipo(Documento documento)
+            => documento.DocumentoTipo.DisplayName().Equals("CPF") ? PessoaTipo.Fisica : PessoaTipo.Juridica;
+        
     }
 }

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SalesReach.Application\SalesReach.Application.csproj" />
     <ProjectReference Include="..\SalesReach.Domain\SalesReach.Domain.csproj" />
     <ProjectReference Include="..\SalesReach.Infra.Data\SalesReach.Infra.Data.csproj" />

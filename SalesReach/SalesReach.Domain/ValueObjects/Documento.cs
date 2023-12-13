@@ -1,13 +1,7 @@
 ﻿using SalesReach.Domain.Enums;
-using SalesReach.Domain.Enums.Extensions;
 using SalesReach.Domain.Validations;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SalesReach.Domain.ValueObjects
 {
@@ -21,38 +15,37 @@ namespace SalesReach.Domain.ValueObjects
             NumeroDocumento = numeroDocumento;
         }
 
-        public int PessoaId { get; set; }
-        public string NumeroDocumento { get; set; }
-        public DocumentoTipo DocumentoTipo { get; set; }
-        public bool Status { get; set; } 
-        public DateTime DataAtualizacao { get; set; }
-        public DateTime DataCadastro { get; set; }
+        public int PessoaId { get; private set; }
+        public DocumentoTipo DocumentoTipo { get; private set; }
+        public string NumeroDocumento { get; private set; } 
+        public bool Status { get; private set; } 
+        public DateTime? DataAtualizacao { get; private set; }
+        public DateTime DataCadastro { get; private set; }
 
         private void IsValidoDocumento(int pessoaId, string numeroDocumento)
         {
             DomainValidationException.When(pessoaId <= 0, "Pessoa Id é requerido.");
-            DomainValidationException.When(string.IsNullOrEmpty(numeroDocumento), "Número documento é requerido.");
+            DomainValidationException.When(
+                                            !Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$") 
+                                            || 
+                                            !Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$"), 
+                                            "Número documento informado é inválido."
+                                          );
         }
 
         private DocumentoTipo VerificaTipoDocumento(string numeroDocumento)
-        {
-            if (Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$"))
-                return DocumentoTipo.CPF;
-
-            if (Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$"))
-                return DocumentoTipo.CNPJ;
-
-            throw new ArgumentOutOfRangeException(nameof(numeroDocumento), $"Número de documento informado é inválido.");
-        }
+            => Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$") ?
+                DocumentoTipo.CNPJ : DocumentoTipo.CPF;
 
         public void Inserir(int pessoaId, string numeroDocumento)
         {
             IsValidoDocumento(pessoaId, numeroDocumento);
 
             PessoaId = pessoaId;
-            NumeroDocumento = numeroDocumento;
             DocumentoTipo = VerificaTipoDocumento(numeroDocumento);
+            NumeroDocumento = ReplaceNumeroDocumento(numeroDocumento);
             Status = true;
+            DataAtualizacao = null;
             DataCadastro = DateTime.Now;
         }
 
@@ -61,8 +54,8 @@ namespace SalesReach.Domain.ValueObjects
             IsValidoDocumento(documento.PessoaId, numeroDocumento);
 
             return documento with {
-                                     NumeroDocumento = numeroDocumento, 
                                      DocumentoTipo = VerificaTipoDocumento(documento.NumeroDocumento), 
+                                     NumeroDocumento = numeroDocumento, 
                                      Status = true, 
                                      DataAtualizacao = DateTime.Now 
                                   };
@@ -72,7 +65,18 @@ namespace SalesReach.Domain.ValueObjects
         public Documento InativarDocumento(Documento documento)
         {
             documento.Status = false;
+            documento.DataAtualizacao = DateTime.Now;
             return documento;
         }
+
+        private static string ReplaceNumeroDocumento(string numeroDocumento) => numeroDocumento.Replace(".", string.Empty)
+                                                                                               .Replace("-", string.Empty)
+                                                                                               .Replace("/", string.Empty);
+
+        private static string NormalizarNumeroDocumento(string numeroDocumento) 
+            => Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$") ? 
+                                  Convert.ToUInt64(numeroDocumento).ToString(@"000\.000\.000\-00") : 
+                                  Convert.ToUInt64((string)numeroDocumento).ToString(@"00\.000\.000\/0000\-00");
+        
     }
 }
