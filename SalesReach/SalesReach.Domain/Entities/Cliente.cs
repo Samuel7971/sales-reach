@@ -1,7 +1,9 @@
 ﻿using SalesReach.Domain.Validations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SalesReach.Domain.Entities
 {
+    [Table("Cliente_Samuel")]
     public class Cliente : Base
     {
         public Pessoa Pessoa { get; private set; }
