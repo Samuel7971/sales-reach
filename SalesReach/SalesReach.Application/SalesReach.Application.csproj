@@ -10,4 +10,15 @@
     <ProjectReference Include="..\SalesReach.Domain\SalesReach.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="Services\Interfaces\" />
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+  </ItemGroup>
+
 </Project>
