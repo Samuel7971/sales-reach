@@ -16,8 +16,4 @@
     <ProjectReference Include="..\SalesReach.Domain\SalesReach.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>
