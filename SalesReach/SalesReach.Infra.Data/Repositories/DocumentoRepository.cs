@@ -84,9 +84,11 @@ namespace SalesReach.Infra.Data.Repositories
             return await _session.Connection.ExecuteAsync(sql, documento, _session.Transaction);
         }
 
-        public Task<bool> VerificarSeExistePorNumeroDocumentoAsync(string numeroDocumento)
+        public async Task<bool> VerificarSeExistePorNumeroDocumentoAsync(string numeroDocumento)
         {
-            throw new NotImplementedException();
+            var sql = $@"SELECT NumeroDocumento FROM FitCard_Gestao..Documento_Samuel WHERE NumeroDocumento = @numeroDocumento";
+            var retorno =  await _session.Connection.QueryFirstAsync<string>(sql, new { numeroDocumento });
+            return string.IsNullOrEmpty(retorno);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace SalesReach.Domain.ValueObjects
     public record class Endereco
     {
         public int PessoaId { get; private set; }
+        public Guid Codigo { get; private set; }
         public string CEP { get; private set; }
         public string Logradouro { get; private set; }
         public string Numero { get; private set; }
@@ -21,9 +22,10 @@ namespace SalesReach.Domain.ValueObjects
 
         public Endereco() { }
 
-        public Endereco(int pessoaId, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf, bool status)
+        public Endereco(int pessoaId, Guid codigo, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf, bool status)
         {
             PessoaId = pessoaId;
+            Codigo = codigo;
             CEP = cep;
             Logradouro = logradouro;
             Numero = numero;
@@ -34,9 +36,10 @@ namespace SalesReach.Domain.ValueObjects
             Status = status;
         }
 
-        private void IsValidoEndereco(int pessoaId, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf)
+        private void IsValidoEndereco(int pessoaId, Guid codigo, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf)
         {
-            DomainValidationException.When(pessoaId <= 0, "PessoaId é requerido.");
+            DomainValidationException.When(pessoaId <= 0, "Pessoa Id é requerido.");
+            DomainValidationException.When(codigo == Guid.Empty, "Código é requerido.");
             DomainValidationException.When(Regex.IsMatch(cep, ("[0-9]{5}-[0-9]{3}")), "CEP informado é inválido.");
             DomainValidationException.When(logradouro is null, "Logradouro não pode ser nulo.");
             DomainValidationException.When(numero is null, "Número não pode ser nulo.");
@@ -44,11 +47,12 @@ namespace SalesReach.Domain.ValueObjects
             DomainValidationException.When(uf.Length != 2, "UF informado é inválido.");
         }
 
-        public void Inserir(int pessoaId, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf, bool status)
+        public void Inserir(int pessoaId, Guid codigo, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf, bool status)
         {
-            IsValidoEndereco(pessoaId, cep, logradouro, numero, complemento, bairro,localidade, uf);
+            IsValidoEndereco(pessoaId, codigo, cep, logradouro, numero, complemento, bairro,localidade, uf);
 
             PessoaId = pessoaId;
+            Codigo = codigo;
             CEP = ReplaceCEP(cep);
             Logradouro = logradouro;
             Numero = numero;
@@ -63,9 +67,10 @@ namespace SalesReach.Domain.ValueObjects
 
         public Endereco Atualizar(Endereco endereco, string cep, string logradouro, string numero, string complemento, string bairro, string localidade, string uf, bool status)
         {
-            IsValidoEndereco(endereco.PessoaId, cep, logradouro, numero, complemento, bairro, localidade, uf);
+            IsValidoEndereco(endereco.PessoaId, endereco.Codigo, cep, logradouro, numero, complemento, bairro, localidade, uf);
 
             return endereco with { 
+                                    Codigo = Codigo,
                                     CEP = cep,  
                                     Logradouro = logradouro, 
                                     Numero = numero, 

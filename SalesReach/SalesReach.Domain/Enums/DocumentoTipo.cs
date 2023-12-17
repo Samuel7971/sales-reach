@@ -12,6 +12,8 @@ namespace SalesReach.Domain.Enums
         [Display(Name = "CPF")]
         CPF = 1,
         [Display(Name = "CNPJ")]
-        CNPJ = 2
+        CNPJ = 2,
+        [Display(Name = "RG")]
+        RG = 3
     }
 }
