@@ -12,8 +12,8 @@ namespace SalesReach.Domain.ValueObjects
         public int PessoaId { get; init; }
         public Guid Codigo { get; init; }
         public int DocumentoTipoId { get; init; }
-        public string NumeroDocumento { get; init; } 
-        public bool Status { get; init; } 
+        public string NumeroDocumento { get; init; }
+        public bool Status { get; init; }
         public DateTime? DataAtualizacao { get; init; }
         public DateTime DataCadastro { get; init; }
 
@@ -43,21 +43,21 @@ namespace SalesReach.Domain.ValueObjects
         {
             DomainValidationException.When(pessoaId <= 0, "Pessoa Id é requerido.");
             DomainValidationException.When(codigo == Guid.Empty, "Código é requerido.");
-            DomainValidationException.When(!Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$") || 
+            DomainValidationException.When(!Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$") ||
                                            !Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$") ||
                                            !Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{1})$"), "Número documento informado é inválido.");
         }
 
         public Documento Buscar(int pessoaId, Guid codigo, int documentoTipoId, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime dataCadastro)
         {
-            return new Documento() 
-            { 
-                PessoaId = pessoaId, 
-                Codigo = codigo, 
-                DocumentoTipoId = documentoTipoId, 
+            return new Documento()
+            {
+                PessoaId = pessoaId,
+                Codigo = codigo,
+                DocumentoTipoId = documentoTipoId,
                 NumeroDocumento = NormalizarNumeroDocumento(documentoTipoId, numeroDocumento),
-                Status = status, 
-                DataAtualizacao = dataAtualizacao, 
+                Status = status,
+                DataAtualizacao = dataAtualizacao,
                 DataCadastro = dataCadastro
             };
         }
@@ -75,31 +75,10 @@ namespace SalesReach.Domain.ValueObjects
                 DataCadastro = DateTime.Now
             };
         }
-            
+
+        public void Atualizar(Documento documento) 
+            => _ = documento with { DocumentoTipoId = documento.DocumentoTipoId, NumeroDocumento = documento.NumeroDocumento };
         
-        //TODO: AJustar método de atualizar
-        public Documento Atualizar(int pessoaId, Guid codigo, string numeroDocumento)
-        {
-            return new Documento()
-            {
-                PessoaId = pessoaId,
-                Codigo = codigo,
-                DocumentoTipoId = VerificaTipoDocumento(numeroDocumento),
-                NumeroDocumento = ReplaceNumeroDocumento(numeroDocumento),
-                Status = true,
-                DataAtualizacao = null,
-                DataCadastro = DateTime.Now
-            };
-        }
-
-        //TODO: Ajustar método de inativar
-        public Documento InativarDocumento(Documento documento)
-        {
-            //documento.Status = false;
-            //documento.DataAtualizacao = DateTime.Now;
-            return documento;
-        }
-
         private int VerificaTipoDocumento(string numeroDocumento)
         {
             if (Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$"))
@@ -132,6 +111,6 @@ namespace SalesReach.Domain.ValueObjects
             }
             return numero;
         }
-         
+
     }
 }

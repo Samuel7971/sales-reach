@@ -27,7 +27,6 @@ namespace SalesReach.Domain.Entities
         {
             Id = id;
             Nome = nome;
-            PessoaTipo = pessoaTipo;
             DataNascimento = dataNascimento;
             Status = status;    
             DataAtualizacao = dataAtualizacao;

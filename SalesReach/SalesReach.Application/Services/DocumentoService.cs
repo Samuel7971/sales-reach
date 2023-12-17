@@ -2,7 +2,6 @@
 using SalesReach.Application.Models;
 using SalesReach.Application.Models.Creation;
 using SalesReach.Application.Services.Interfaces;
-using SalesReach.Domain.Enums;
 using SalesReach.Domain.Repositories.Interface;
 using SalesReach.Domain.ValueObjects;
 
@@ -12,7 +11,7 @@ namespace SalesReach.Application.Services
     {
         private readonly IDocumentoRepository _documentoRepository;
         private readonly IMapper _mapper;
-     
+
         public DocumentoService(IDocumentoRepository documentoRepository, IMapper mapper)
         {
             _documentoRepository = documentoRepository;
@@ -40,14 +39,17 @@ namespace SalesReach.Application.Services
             documento.Buscar(documento.PessoaId, documento.Codigo, documento.DocumentoTipoId, documento.NumeroDocumento, documento.Status, documento.DataAtualizacao, documento.DataCadastro);
 
             return _mapper.Map<DocumentoModel>(documento);
-        } 
+        }
 
-        //TODO: Verificar com atualizar record 
         public async Task<int> Atualizar(DocumentoModel documentoModel)
         {
-            var documento = new Documento();
+            var documento = await _documentoRepository.BuscarPorPessoaIdAsync(documentoModel.PessoaId);
+            var docModel = _mapper.Map<Documento>(documentoModel);
 
-            documento.Atualizar(documento.PessoaId, documentoModel.Codigo, documentoModel.NumeroDocumento);
+            if (documento.Equals(docModel))
+                return 0;
+
+            docModel.Atualizar(docModel);
             return await _documentoRepository.AtualizarAsync(documento);
         }
 
