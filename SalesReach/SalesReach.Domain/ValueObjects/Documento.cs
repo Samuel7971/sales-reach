@@ -2,43 +2,29 @@
 using SalesReach.Domain.Enums.Extensions;
 using SalesReach.Domain.Validations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 
 namespace SalesReach.Domain.ValueObjects
 {
-    [Table("Pessoa_Documento")]
-    public record class Documento
+    [Table("Documento_Samuel")]
+    public record class Documento : BaseValueObject
     {
         public int PessoaId { get; init; }
-        public Guid Codigo { get; init; }
         public int DocumentoTipoId { get; init; }
         public string NumeroDocumento { get; init; }
-        public bool Status { get; init; }
-        public DateTime? DataAtualizacao { get; init; }
-        public DateTime DataCadastro { get; init; }
 
         public Documento() { }
-        public Documento(int pessoaId, Guid codigo, string numeroDocumento)
+        private Documento(int pessoaId, Guid codigo, string numeroDocumento)
         {
             IsValidoDocumento(pessoaId, codigo, numeroDocumento);
 
             PessoaId = pessoaId;
             Codigo = codigo;
-            NumeroDocumento = numeroDocumento;
+            DocumentoTipoId = VerificaDocumentoTipo(numeroDocumento);
+            NumeroDocumento = ReplaceNumeroDocumento(numeroDocumento);
         }
-        public Documento(int pessoaId, Guid codigo, int documentoTipoId, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime dataCadastro)
-        {
-            IsValidoDocumento(pessoaId, codigo, numeroDocumento);
-
-            PessoaId = pessoaId;
-            Codigo = codigo;
-            DocumentoTipoId = documentoTipoId;
-            NumeroDocumento = numeroDocumento;
-            Status = status;
-            DataAtualizacao = dataAtualizacao;
-            DataCadastro = dataCadastro;
-        }
-
+      
         private void IsValidoDocumento(int pessoaId, Guid codigo, string numeroDocumento)
         {
             DomainValidationException.When(pessoaId <= 0, "Pessoa Id é requerido.");
@@ -48,9 +34,9 @@ namespace SalesReach.Domain.ValueObjects
                                            !Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{1})$"), "Número documento informado é inválido.");
         }
 
-        public Documento Buscar(int pessoaId, Guid codigo, int documentoTipoId, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime dataCadastro)
+        public void Buscar(int pessoaId, Guid codigo, int documentoTipoId, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime dataCadastro)
         {
-            return new Documento()
+            _ = new Documento()
             {
                 PessoaId = pessoaId,
                 Codigo = codigo,
@@ -62,24 +48,18 @@ namespace SalesReach.Domain.ValueObjects
             };
         }
 
-        public Documento Inserir(int pessoaId, Guid codigo, string numeroDocumento)
-        {
-            return new Documento()
-            {
-                PessoaId = pessoaId,
-                Codigo = codigo,
-                DocumentoTipoId = VerificaTipoDocumento(numeroDocumento),
-                NumeroDocumento = ReplaceNumeroDocumento(numeroDocumento),
-                Status = true,
-                DataAtualizacao = null,
-                DataCadastro = DateTime.Now
-            };
-        }
+        public static Documento Criar(int pessoaId, Guid codigo, string numeroDocumento)
+            => new(pessoaId, codigo, numeroDocumento);
 
-        public void Atualizar(Documento documento) 
-            => _ = documento with { DocumentoTipoId = documento.DocumentoTipoId, NumeroDocumento = documento.NumeroDocumento };
-        
-        private int VerificaTipoDocumento(string numeroDocumento)
+        public static Documento Atualizar(Documento documento)
+            => documento with { DocumentoTipoId = documento.DocumentoTipoId, NumeroDocumento = documento.NumeroDocumento };
+
+        public static Documento AtualizarStatus(Documento documento) =>  documento with { Status = documento.Status };
+
+        public static Documento Inserir(int pessoaId, Guid codigo, string numeroDocumento)
+            => new(pessoaId, codigo, numeroDocumento);
+         
+        private static int VerificaDocumentoTipo(string numeroDocumento)
         {
             if (Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$"))
                 return (int)DocumentoTipo.CNPJ;
@@ -111,6 +91,13 @@ namespace SalesReach.Domain.ValueObjects
             }
             return numero;
         }
+
+        public override bool Equals(Documento documento)
+        => documento.PessoaId.Equals(PessoaId) && documento.Codigo.Equals(Codigo) && 
+            documento.DocumentoTipoId.Equals(DocumentoTipoId) && documento.NumeroDocumento.Equals(NumeroDocumento);
+
+        public override int GetHashCode() => base.GetHashCode();
+
 
     }
 }

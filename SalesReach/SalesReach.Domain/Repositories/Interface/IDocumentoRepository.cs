@@ -14,7 +14,7 @@ namespace SalesReach.Domain.Repositories.Interface
         Task<Documento> BuscarPorNumeroDocumentoAsync(string numeroDocumento);
         Task<int> InserirAsync(Documento documento);
         Task<int> AtualizarAsync(Documento documento);
-        Task<int> AtualizarStatusAsync(int pessoaId, bool status);
+        Task<int> AtualizarStatusAsync(int pessoaId, Guid codigo, bool status);
         Task<bool> VerificarSeExistePorNumeroDocumentoAsync(string numeroDocumento);
     }
 }

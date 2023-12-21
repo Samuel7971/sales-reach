@@ -5,10 +5,9 @@ using System.Text.RegularExpressions;
 namespace SalesReach.Domain.ValueObjects
 {
     [Table("Endereco_Samuel")]
-    public record class Endereco
+    public record class Endereco : BaseValueObject
     {
         public int PessoaId { get; private set; }
-        public Guid Codigo { get; private set; }
         public string CEP { get; private set; }
         public string Logradouro { get; private set; }
         public string Numero { get; private set; }
@@ -16,9 +15,6 @@ namespace SalesReach.Domain.ValueObjects
         public string Bairro { get; private set; }
         public string Localidade { get; private set; }
         public string UF { get; private set; }
-        public bool Status { get; private set; }
-        public DateTime? DataAtualizacao { get; private set; }
-        public DateTime DataCadastro { get; private set; }
 
         public Endereco() { }
 

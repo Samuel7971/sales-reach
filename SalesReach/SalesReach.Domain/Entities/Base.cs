@@ -5,14 +5,9 @@ namespace SalesReach.Domain.Entities
     public class Base
     {
         [Key]
-        public int Id { get; set; }
-        public bool Status { get; set; }
-        public DateTime? DataAtualizacao { get; set; }
-        public DateTime DataCadastro { get; set; } = DateTime.Now;
-
-        public Base()
-        {
-            Status = true;
-        }
+        protected int Id { get; set; }
+        protected bool Status { get; set; }
+        protected DateTime? DataAtualizacao { get; set; }
+        protected DateTime DataCadastro { get; set; } 
     }
 }

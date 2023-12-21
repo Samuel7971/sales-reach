@@ -8,11 +8,8 @@ namespace SalesReach.Infra.Data.Repositories
     {
         private DbSession _session;
 
-        public DocumentoRepository(DbSession session)
-        {
-            _session = session;
-        }
-
+        public DocumentoRepository(DbSession session) =>_session = session;
+       
         public async Task<IEnumerable<Documento>> BuscatTodosAsync()
         {
             var sql = $@"SELECT 
@@ -31,6 +28,7 @@ namespace SalesReach.Infra.Data.Repositories
         {
             var sql = $@"SELECT 
                               PessoaId
+                             ,Codigo
                              ,DocumentoTipoId
                              ,NumeroDocumento
                              ,[Status]
@@ -45,17 +43,17 @@ namespace SalesReach.Infra.Data.Repositories
         {
             var sql = $@"SELECT 
                               PessoaId
+                             ,Codigo 
                              ,DocumentoTipoId
                              ,NumeroDocumento
                              ,[Status]
                              ,DataAtualizacao
                              ,DataCadastro
                          FROM FitCard_Gestao..Documento_Samuel 
-                         WHERE NumeroDocumento LIKE '%' + REPLACE(@numeroDocumento,'&','%') + '%';";
+                         WHERE NumeroDocumento = @numeroDocumento";
             return await _session.Connection.QuerySingleOrDefaultAsync<Documento>(sql, new { numeroDocumento });
         }
     
-
         public async Task<int> AtualizarAsync(Documento documento)
         {
             var sql = $@"UPDATE FitCard_Gestao..Documento_Samuel 
@@ -67,20 +65,20 @@ namespace SalesReach.Infra.Data.Repositories
             return await _session.Connection.ExecuteAsync(sql, documento);
         }
 
-        public async Task<int> AtualizarStatusAsync(int pessoaId, bool status)
+        public async Task<int> AtualizarStatusAsync(int pessoaId, Guid codigo, bool status)
         {
             var sql = $@"UPDATE FitCard_Gestao..Documento_Samuel 
                                SET Status = @Status,
                                    DataAtualizacao = GETDATE()
-                             WHERE PessoaId = @pessoaId";
-            return await _session.Connection.ExecuteAsync(sql, new {pessoaId, status });
+                             WHERE PessoaId = @pessoaId AND Codigo = @codigo";
+            return await _session.Connection.ExecuteAsync(sql, new {pessoaId, codigo, status });
         }
 
 
         public async Task<int> InserirAsync(Documento documento)
         {
-            var sql = $@"INSERT INTO FitCard_Gestao..Documento_Samuel(PessoaId, DocumentoTipoId, NumeroDocumento, Status, DataCadastro)
-                                   VALUES(@PessoaId, @DocumentoTipoId, @NumeroDocumento, @Status, GETDATE())";
+            var sql = $@"INSERT INTO FitCard_Gestao..Documento_Samuel(PessoaId, Codigo, DocumentoTipoId, NumeroDocumento, Status, DataAtualizacao, DataCadastro)
+                                   VALUES(@PessoaId, @Codigo, @DocumentoTipoId, @NumeroDocumento, @Status, null, GETDATE())";
             return await _session.Connection.ExecuteAsync(sql, documento, _session.Transaction);
         }
 

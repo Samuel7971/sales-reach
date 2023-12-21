@@ -2,11 +2,6 @@
 using SalesReach.Application.Services.Interfaces;
 using SalesReach.Domain.Entities;
 using SalesReach.Domain.Repositories.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SalesReach.Application.Services
 {

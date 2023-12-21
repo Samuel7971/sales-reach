@@ -1,6 +1,4 @@
-﻿using SalesReach.Domain.Enums;
-using SalesReach.Domain.Enums.Extensions;
-using SalesReach.Domain.Validations;
+﻿using SalesReach.Domain.Validations;
 using SalesReach.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,12 +17,16 @@ namespace SalesReach.Domain.Entities
 
         public Pessoa(string nome, DateTime dataNascimento)
         {
+            IsValidaPessoa(nome, dataNascimento);
+
             Nome = nome;
             DataNascimento = dataNascimento;
         }
 
         public Pessoa(int id, string nome, DateTime dataNascimento, bool status, DateTime dataAtualizacao, DateTime dataCadastro)
         {
+            IsValidaPessoa(nome, dataNascimento);
+
             Id = id;
             Nome = nome;
             DataNascimento = dataNascimento;
@@ -33,7 +35,7 @@ namespace SalesReach.Domain.Entities
             DataCadastro = dataCadastro;
         }
 
-        private void IsValidaPessoa(string nome, DateTime dataNascimento)
+        private static void IsValidaPessoa(string nome, DateTime dataNascimento)
         {
             DomainValidationException.When(string.IsNullOrEmpty(nome), "Obrigatorio informar campo Nome.");
             DomainValidationException.When(!IsValidaDataNascimento(dataNascimento), "Data Nascimento informada é inválida.");
@@ -57,7 +59,6 @@ namespace SalesReach.Domain.Entities
             Id = id;
             Codigo = codigo;
             Nome = nome;
-            
             DataNascimento = dataNascimento;
             Status = status;
             DataAtualizacao = DateTime.Now;
@@ -79,10 +80,10 @@ namespace SalesReach.Domain.Entities
                               );
         }
 
-        private bool IsValidaDataNascimento(DateTime dataNascimento)
+        private static bool IsValidaDataNascimento(DateTime dataNascimento)
             => dataNascimento <= DateTime.Now.AddYears(-16);
 
-        private Guid GerarCodigoPessoa() => Guid.NewGuid();
+        private static Guid GerarCodigoPessoa() => Guid.NewGuid();
 
         
         

@@ -10,14 +10,17 @@ namespace SalesReach.Application.Services
     public class DocumentoService : IDocumentoService
     {
         private readonly IDocumentoRepository _documentoRepository;
-        private readonly IMapper _mapper;
+       
+        public DocumentoService(IDocumentoRepository documentoRepository) => _documentoRepository = documentoRepository;
 
-        public DocumentoService(IDocumentoRepository documentoRepository, IMapper mapper)
+        public async Task<int> Inserir(DocumentoCreateModel documentoModel)
         {
-            _documentoRepository = documentoRepository;
-            _mapper = mapper;
-        }
+            if (await _documentoRepository.VerificarSeExistePorNumeroDocumentoAsync(documentoModel.NumeroDocumento))
+                throw new Exception("Número de documento já cadastrado.");
 
+            return await _documentoRepository.InserirAsync(Documento.Inserir(documentoModel.PessoaId, documentoModel.Codigo, documentoModel.NumeroDocumento));
+        }
+    
         public async Task<IEnumerable<DocumentoModel>> BuscarTodosAsync()
         {
             var listaDocumentos = new List<DocumentoModel>();
@@ -26,43 +29,43 @@ namespace SalesReach.Application.Services
 
             foreach (var documento in documentos)
             {
-                documento.Buscar(documento.PessoaId, documento.Codigo, documento.DocumentoTipoId, documento.NumeroDocumento, documento.Status, documento.DataAtualizacao, documento.DataCadastro);
-                listaDocumentos.Add(_mapper.Map<DocumentoModel>(documento));
-            }
+                documento.Buscar(documento.PessoaId,
+                                 documento.Codigo,
+                                 documento.DocumentoTipoId,
+                                 documento.NumeroDocumento,
+                                 documento.Status,
+                                 documento.DataAtualizacao,
+                                 documento.DataCadastro);
 
+                listaDocumentos.Add((DocumentoModel)documento);
+            }
             return listaDocumentos;
         }
 
         public async Task<DocumentoModel> BuscarPorPessoaIdAsync(int pessoaId)
         {
             var documento = await _documentoRepository.BuscarPorPessoaIdAsync(pessoaId);
-            documento.Buscar(documento.PessoaId, documento.Codigo, documento.DocumentoTipoId, documento.NumeroDocumento, documento.Status, documento.DataAtualizacao, documento.DataCadastro);
+            documento.Buscar(documento.PessoaId,
+                             documento.Codigo,
+                             documento.DocumentoTipoId,
+                             documento.NumeroDocumento,
+                             documento.Status,
+                             documento.DataAtualizacao,
+                             documento.DataCadastro);
 
-            return _mapper.Map<DocumentoModel>(documento);
+            return documento;
         }
 
         public async Task<int> Atualizar(DocumentoModel documentoModel)
         {
-            var documento = await _documentoRepository.BuscarPorPessoaIdAsync(documentoModel.PessoaId);
-            var docModel = _mapper.Map<Documento>(documentoModel);
+            var documento = Documento.Criar(documentoModel.PessoaId, documentoModel.Codigo, documentoModel.NumeroDocumento);
+            var documentoBase = await _documentoRepository.BuscarPorPessoaIdAsync(documentoModel.PessoaId);
 
-            if (documento.Equals(docModel))
+            if (documentoBase.Equals(documento))
                 return 0;
 
-            docModel.Atualizar(docModel);
-            return await _documentoRepository.AtualizarAsync(documento);
+            var novoDocumento = Documento.Atualizar(documento);
+            return await _documentoRepository.AtualizarAsync(novoDocumento);
         }
-
-        public async Task<int> Inserir(DocumentoCreateModel documentoModel)
-        {
-            var documento = new Documento();
-
-            if (await _documentoRepository.VerificarSeExistePorNumeroDocumentoAsync(documentoModel.NumeroDocumento))
-                throw new Exception("Número de documento já cadastrado.");
-
-            documento.Inserir(documentoModel.PessoaId, documentoModel.Codigo, documentoModel.NumeroDocumento);
-            return await _documentoRepository.InserirAsync(documento);
-        }
-
     }
 }
