@@ -1,4 +1,5 @@
-﻿using SalesReach.Domain.Validations;
+﻿using SalesReach.Domain.Interface;
+using SalesReach.Domain.Validations;
 using SalesReach.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,51 +18,53 @@ namespace SalesReach.Domain.Entities
 
         public Pessoa(string nome, DateTime dataNascimento)
         {
-            IsValidaPessoa(nome, dataNascimento);
-
             Nome = nome;
             DataNascimento = dataNascimento;
+
+            IsValid();
         }
 
-        public Pessoa(int id, string nome, DateTime dataNascimento, bool status, DateTime dataAtualizacao, DateTime dataCadastro)
+        public Pessoa(int id, Guid codigo,  string nome, DateTime dataNascimento, bool status, DateTime? dataAtualizacao, DateTime dataCadastro)
         {
-            IsValidaPessoa(nome, dataNascimento);
-
             Id = id;
+            Codigo = codigo;
             Nome = nome;
             DataNascimento = dataNascimento;
             Status = status;    
             DataAtualizacao = dataAtualizacao;
             DataCadastro = dataCadastro;
+
+            IsValid();
         }
 
-        private static void IsValidaPessoa(string nome, DateTime dataNascimento)
+
+        protected  override void IsValid()
         {
-            DomainValidationException.When(string.IsNullOrEmpty(nome), "Obrigatorio informar campo Nome.");
-            DomainValidationException.When(!IsValidaDataNascimento(dataNascimento), "Data Nascimento informada é inválida.");
+            DomainValidationException.When(string.IsNullOrEmpty(Nome), "Obrigatorio informar campo Nome.");
+            DomainValidationException.When(!IsValidaDataNascimento(DataNascimento), "Data Nascimento informada é inválida.");
         }
 
         public void Inserir(string nome, DateTime dataNascimento)
         {
-            IsValidaPessoa(nome, dataNascimento);
-
             Codigo = GerarCodigoPessoa();
             Nome = nome;
             DataNascimento = dataNascimento;
             Status = true;
             DataCadastro = DateTime.Now;
+
+            IsValid();
         }
 
         public void Atualizar(int id, Guid codigo, string nome, DateTime dataNascimento, bool status)
         {
-            IsValidaPessoa(nome, dataNascimento);
-
             Id = id;
             Codigo = codigo;
             Nome = nome;
             DataNascimento = dataNascimento;
             Status = status;
             DataAtualizacao = DateTime.Now;
+
+            IsValid();
         }
 
         public static implicit operator string(Pessoa pessoa)
