@@ -16,15 +16,17 @@ namespace SalesReach.Application.Services
             _pessoaRepository = pessoaRepository;
             _documentoService = documentoService;
             _unitOfWork = unitOfWork;
-
         }
+
 
         //TODO: Terminar o inserte de pessoa
         public async Task<int> InserirAsync(PessoaCreateModel pessoaModel)
         {
-            var novaPessoa = new Pessoa();
+            //TODO: Verficar utilização do método de verificar documento (Exception)
+            if (await _documentoService.VerificarSeExistePorNumeroDocumentoAsync(pessoaModel.Documento.NumeroDocumento))
+                throw new Exception("Já exite pessoa com o mesmo número de documento cadastrado.");
 
-            novaPessoa.Inserir(pessoaModel.Nome, pessoaModel.DataNascimento);
+            var novaPessoa = Pessoa.Criar(0, pessoaModel.Nome, pessoaModel.DataNascimento, status: true, dataAtualizacao: null, dataCadastro: DateTime.Now);
 
             await _unitOfWork.BeginTransation();
 
@@ -39,6 +41,8 @@ namespace SalesReach.Application.Services
             pessoaModel.Endereco.Codigo = pessoa.Codigo;
 
             _= await _documentoService.Inserir(pessoaModel.Documento);
+
+            //TODO: Endereço inserir
 
             await _unitOfWork.Commit();
 

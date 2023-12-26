@@ -10,6 +10,10 @@ namespace SalesReach.Domain.Entities
 
         public Cliente() { }
 
+        protected override void Validador()
+        {
+            throw new NotImplementedException();
+        }
         private void IsValidoCliente(Pessoa pessoa)
         {
             DomainValidationException.When(pessoa is null, "Pessoa Id informado é inválido.");
@@ -24,7 +28,7 @@ namespace SalesReach.Domain.Entities
             DataCadastro = DateTime.Now;
         }
 
-        public void AtualizarStatus(int id, bool status)
+        public override void AtualizarStatus(int id, bool status, DateTime dataAtualizacao )
         {
             DomainValidationException.When(id <= 0, "Id informado é inválido.");
             

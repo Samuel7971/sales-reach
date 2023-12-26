@@ -58,14 +58,18 @@ namespace SalesReach.Application.Services
 
         public async Task<int> Atualizar(DocumentoModel documentoModel)
         {
-            var documento = Documento.Criar(documentoModel.PessoaId, documentoModel.Codigo, documentoModel.NumeroDocumento);
-            var documentoBase = await _documentoRepository.BuscarPorPessoaIdAsync(documentoModel.PessoaId);
+            //var documento = Documento.Criar(documentoModel.PessoaId, documentoModel.Codigo, documentoModel.NumeroDocumento);
+            //var documentoBase = await _documentoRepository.BuscarPorPessoaIdAsync(documentoModel.PessoaId);
 
-            if (documentoBase.Equals(documento))
-                return 0;
+            //if (documentoBase.Equals(documento))
+            //    return 0;
 
-            var novoDocumento = Documento.Atualizar(documento);
-            return await _documentoRepository.AtualizarAsync(novoDocumento);
+            //var novoDocumento = Documento.Atualizar(documento);
+            //return await _documentoRepository.AtualizarAsync(novoDocumento);
+            throw new NotImplementedException();
         }
+
+        public async Task<bool> VerificarSeExistePorNumeroDocumentoAsync(string numeroDocumento)
+            => await _documentoRepository.VerificarSeExistePorNumeroDocumentoAsync(numeroDocumento);
     }
 }

@@ -92,9 +92,9 @@ namespace SalesReach.Domain.ValueObjects
             return numero;
         }
 
-        public override bool Equals(Documento documento)
-        => documento.PessoaId.Equals(PessoaId) && documento.Codigo.Equals(Codigo) && 
-            documento.DocumentoTipoId.Equals(DocumentoTipoId) && documento.NumeroDocumento.Equals(NumeroDocumento);
+        //public override bool Equals(Documento documento)
+        //    => documento.PessoaId.Equals(PessoaId) && documento.Codigo.Equals(Codigo) && 
+        //       documento.DocumentoTipoId.Equals(DocumentoTipoId) && documento.NumeroDocumento.Equals(NumeroDocumento);
 
         public override int GetHashCode() => base.GetHashCode();
 

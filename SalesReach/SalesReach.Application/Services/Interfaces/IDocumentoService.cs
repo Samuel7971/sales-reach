@@ -9,5 +9,6 @@ namespace SalesReach.Application.Services.Interfaces
         Task<DocumentoModel> BuscarPorPessoaIdAsync(int pessoaId);
         Task<int> Atualizar(DocumentoModel documentoModel);
         Task<int> Inserir(DocumentoCreateModel documentoModel);
+        Task<bool> VerificarSeExistePorNumeroDocumentoAsync(string numeroDocumento);
     }
 }

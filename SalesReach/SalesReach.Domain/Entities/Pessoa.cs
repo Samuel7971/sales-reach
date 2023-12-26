@@ -1,5 +1,4 @@
-﻿using SalesReach.Domain.Interface;
-using SalesReach.Domain.Validations;
+﻿using SalesReach.Domain.Validations;
 using SalesReach.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,53 +7,31 @@ namespace SalesReach.Domain.Entities
     [Table("Pessoa_Samuel")]
     public class Pessoa : Base
     {
-        public Guid Codigo { get; private set; } 
         public string Nome { get; private set; }
         public DateTime DataNascimento { get; private set; }
         public Documento Documento{ get; private set; }
         public Endereco Endreco { get; private set; }
 
-        public Pessoa() { }
-
-        public Pessoa(string nome, DateTime dataNascimento)
-        {
-            Nome = nome;
-            DataNascimento = dataNascimento;
-
-            IsValid();
-        }
-
-        public Pessoa(int id, Guid codigo,  string nome, DateTime dataNascimento, bool status, DateTime? dataAtualizacao, DateTime dataCadastro)
+        public Pessoa() { } //Util para o Dapper
+        private Pessoa(int id, string nome, DateTime dataNascimento, bool status, DateTime? dataAtualizacao, DateTime? dataCadastro) : base(id, Guid.NewGuid(), status, dataAtualizacao, dataCadastro)
         {
             Id = id;
-            Codigo = codigo;
             Nome = nome;
             DataNascimento = dataNascimento;
             Status = status;    
             DataAtualizacao = dataAtualizacao;
             DataCadastro = dataCadastro;
 
-            IsValid();
+            Validador();
         }
 
-
-        protected  override void IsValid()
+        protected override void Validador()
         {
-            DomainValidationException.When(string.IsNullOrEmpty(Nome), "Obrigatorio informar campo Nome.");
+            DomainValidationException.When(string.IsNullOrEmpty(Nome) && Nome.Length > 15, "Obrigatório informar campo Nome.");
             DomainValidationException.When(!IsValidaDataNascimento(DataNascimento), "Data Nascimento informada é inválida.");
         }
-
-        public void Inserir(string nome, DateTime dataNascimento)
-        {
-            Codigo = GerarCodigoPessoa();
-            Nome = nome;
-            DataNascimento = dataNascimento;
-            Status = true;
-            DataCadastro = DateTime.Now;
-
-            IsValid();
-        }
-
+        public static Pessoa Criar(int id, string nome, DateTime dataNascimento, bool status, DateTime? dataAtualizacao, DateTime? dataCadastro)
+            => new(id, nome, dataNascimento, status, dataAtualizacao, dataCadastro);
         public void Atualizar(int id, Guid codigo, string nome, DateTime dataNascimento, bool status)
         {
             Id = id;
@@ -64,7 +41,13 @@ namespace SalesReach.Domain.Entities
             Status = status;
             DataAtualizacao = DateTime.Now;
 
-            IsValid();
+            Validador();
+        }
+        public override void AtualizarStatus(int id, bool status, DateTime dataAtualizacao) 
+        {
+            Id = id;
+            Status = status;
+            DataAtualizacao = dataAtualizacao;
         }
 
         public static implicit operator string(Pessoa pessoa)
@@ -82,13 +65,7 @@ namespace SalesReach.Domain.Entities
                                  dataCadastro: DateTime.Parse(data[5])
                               );
         }
-
-        private static bool IsValidaDataNascimento(DateTime dataNascimento)
+        private bool IsValidaDataNascimento(DateTime dataNascimento)
             => dataNascimento <= DateTime.Now.AddYears(-16);
-
-        private static Guid GerarCodigoPessoa() => Guid.NewGuid();
-
-        
-        
     }
 }
