@@ -1,5 +1,8 @@
-﻿using SalesReach.Application.Models.Creation;
+﻿using SalesReach.Application.Models;
+using SalesReach.Application.Models.Creation;
 using SalesReach.Application.Services.Interfaces;
+using SalesReach.Application.Utils.Mappings.DomainToViewModel;
+using SalesReach.Application.ViewModels;
 using SalesReach.Domain.Entities;
 using SalesReach.Domain.Repositories.Interface;
 
@@ -16,6 +19,34 @@ namespace SalesReach.Application.Services
             _pessoaRepository = pessoaRepository;
             _documentoService = documentoService;
             _unitOfWork = unitOfWork;
+        }
+
+        #region .: Ajustas pontos de data na construção do retorno class (PessoaMapper):.
+        //TODO: Ajustas pontos de data na construção do retorno class (PessoaMapper).
+        public async Task<IEnumerable<PessoaViewModel>> BuscarTodosAsync() 
+            => PessoaMapper.ToListPessoaViewModel(await _pessoaRepository.BuscarTodosAsync());
+
+        public async Task<PessoaViewModel> BuscarPorIdAsync(int id) 
+            => PessoaMapper.ToPessoaViewModel(await _pessoaRepository.BuscarPorIdAsync(id));
+
+        public async Task<PessoaViewModel> BuscaPorNomeAsync(string nome)
+            => PessoaMapper.ToPessoaViewModel(await _pessoaRepository.BuscarPorNomeAsync(nome));
+        #endregion
+
+        public async Task<int> AtualizarAsync(PessoaModel pessoaModel)
+        {
+            var pessoa = await _pessoaRepository.BuscarPorIdAsync(pessoaModel.Id);
+
+            pessoa.Atualizar(pessoaModel.Id, pessoaModel.Codigo, pessoaModel.Nome, pessoaModel.DataNascimento, pessoaModel.Status);
+            return await _pessoaRepository.AtualizarAsync(pessoa);
+        }
+
+        public async Task<int> AtualizarStatusAsync(int id, bool status)
+        {
+            var pessoa = await _pessoaRepository.BuscarPorIdAsync(id);
+
+            pessoa.AtualizarStatus(id, status);
+            return await _pessoaRepository.AtualizarStatusAsync(pessoa.Id, pessoa.Status);
         }
 
 
@@ -40,7 +71,7 @@ namespace SalesReach.Application.Services
             pessoaModel.Endereco.PessoaId = pessoa.Id;
             pessoaModel.Endereco.Codigo = pessoa.Codigo;
 
-            _= await _documentoService.Inserir(pessoaModel.Documento);
+            _ = await _documentoService.Inserir(pessoaModel.Documento);
 
             //TODO: Endereço inserir
 
@@ -48,6 +79,5 @@ namespace SalesReach.Application.Services
 
             return pessoaId;
         }
-
     }
 }

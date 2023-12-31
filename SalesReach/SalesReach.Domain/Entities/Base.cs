@@ -1,6 +1,6 @@
 ﻿namespace SalesReach.Domain.Entities
 {
-    public  abstract class Base
+    public abstract class Base
     {
         public int Id { get; set; }
         public Guid Codigo { get; set; } 
@@ -19,6 +19,6 @@
         }
 
         protected abstract void Validador();
-        public abstract void AtualizarStatus(int Id, bool status, DateTime dataAtualizacao);
+        public abstract void AtualizarStatus(int Id, bool status);
     }
 }

@@ -43,11 +43,10 @@ namespace SalesReach.Domain.Entities
 
             Validador();
         }
-        public override void AtualizarStatus(int id, bool status, DateTime dataAtualizacao) 
+        public override void AtualizarStatus(int id, bool status) 
         {
             Id = id;
             Status = status;
-            DataAtualizacao = dataAtualizacao;
         }
 
         public static implicit operator string(Pessoa pessoa)

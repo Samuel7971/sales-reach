@@ -1,8 +1,6 @@
 ﻿using SalesReach.Domain.Enums;
-using SalesReach.Domain.Enums.Extensions;
 using SalesReach.Domain.Validations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 
 namespace SalesReach.Domain.ValueObjects
@@ -10,19 +8,17 @@ namespace SalesReach.Domain.ValueObjects
     [Table("Documento_Samuel")]
     public record class Documento : BaseValueObject
     {
-        public int PessoaId { get; init; }
-        public int DocumentoTipoId { get; init; }
-        public string NumeroDocumento { get; init; }
+        public int DocumentoTipoId { get; private set; }
+        public string NumeroDocumento { get; private set; }
 
-        public Documento() { }
-        private Documento(int pessoaId, Guid codigo, string numeroDocumento)
+        public Documento() { } //Util para o Dapper
+        private Documento(int pessoaId, Guid codigo, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime? dataCadastro) :  base(pessoaId, codigo, status, dataAtualizacao, dataCadastro)
         {
-            IsValidoDocumento(pessoaId, codigo, numeroDocumento);
 
-            PessoaId = pessoaId;
-            Codigo = codigo;
             DocumentoTipoId = VerificaDocumentoTipo(numeroDocumento);
             NumeroDocumento = ReplaceNumeroDocumento(numeroDocumento);
+
+            IsValidoDocumento(pessoaId, codigo, numeroDocumento);
         }
       
         private void IsValidoDocumento(int pessoaId, Guid codigo, string numeroDocumento)
@@ -54,7 +50,7 @@ namespace SalesReach.Domain.ValueObjects
         public static Documento Atualizar(Documento documento)
             => documento with { DocumentoTipoId = documento.DocumentoTipoId, NumeroDocumento = documento.NumeroDocumento };
 
-        public static Documento AtualizarStatus(Documento documento) =>  documento with { Status = documento.Status };
+        //public static Documento AtualizarStatus(Documento documento) =>  documento with { Status = documento.Status };
 
         public static Documento Inserir(int pessoaId, Guid codigo, string numeroDocumento)
             => new(pessoaId, codigo, numeroDocumento);
@@ -92,9 +88,9 @@ namespace SalesReach.Domain.ValueObjects
             return numero;
         }
 
-        //public override bool Equals(Documento documento)
-        //    => documento.PessoaId.Equals(PessoaId) && documento.Codigo.Equals(Codigo) && 
-        //       documento.DocumentoTipoId.Equals(DocumentoTipoId) && documento.NumeroDocumento.Equals(NumeroDocumento);
+        public virtual bool Equals(Documento outro)
+            => outro is not null && outro.PessoaId.Equals(PessoaId) && outro.Codigo.Equals(Codigo) &&
+               outro.DocumentoTipoId.Equals(DocumentoTipoId) && outro.NumeroDocumento.Equals(NumeroDocumento);
 
         public override int GetHashCode() => base.GetHashCode();
 
