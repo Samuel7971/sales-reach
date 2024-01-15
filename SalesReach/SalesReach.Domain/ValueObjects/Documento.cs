@@ -13,8 +13,8 @@ namespace SalesReach.Domain.ValueObjects
         public string NumeroDocumento { get; private set; }
 
 
-        private Documento(int pessoaId, EnumDocumentoTipo documentoTipoId, string numeroDocumento, DateTime? dataAtualizacao, DateTime? dataCadastro) 
-            : base(dataAtualizacao, dataCadastro)
+        private Documento(int pessoaId, EnumDocumentoTipo documentoTipoId, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime? dataCadastro) 
+            : base(status, dataAtualizacao, dataCadastro)
         {
             PessoaId = pessoaId;
             DocumentoTipo = documentoTipoId;
@@ -27,13 +27,32 @@ namespace SalesReach.Domain.ValueObjects
 
             var documentoTipo = VerificaDocumentoTipo(numeroDocumento);
             ReplaceNumeroDocumento(numeroDocumento);
-
-            return new(pessoaId, documentoTipo, numeroDocumento, null, DateTime.Now);
+            
+            return new(pessoaId, documentoTipo, numeroDocumento, true, null, DateTime.Now);
         }
 
-        public static Documento Atualizar(Documento documento)
+        public static Documento Atualizar(Documento documentoAntigo, Documento documentoNovo)
         {
-            return documento with { DocumentoTipo = documento.DocumentoTipo, NumeroDocumento = documento.NumeroDocumento, DataAtualizacao = DateTime.Now };
+            EhValido(documentoNovo.PessoaId, documentoNovo.NumeroDocumento);
+            var documentoTipo = VerificaDocumentoTipo(documentoNovo.NumeroDocumento);
+
+            if (documentoAntigo.Equals(documentoNovo))
+                return documentoAntigo;
+
+            return documentoAntigo with
+            {
+                DocumentoTipo = documentoTipo,
+                NumeroDocumento = ReplaceNumeroDocumento(documentoNovo.NumeroDocumento),
+                DataAtualizacao = null,
+                DataCadastro = DateTime.Now
+            };
+        }
+
+        public static Documento Inativar(Documento documento)
+        {
+            documento.Status = false;
+            documento.DataAtualizacao = DateTime.Now;
+            return documento;
         }
 
         private static void EhValido(int pessoaId, string numeroDocumento)
