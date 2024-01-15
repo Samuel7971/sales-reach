@@ -17,7 +17,7 @@ namespace SalesReach.Application.Mappings.ModelToDomain
 
             #region .: Documento Mapping
             CreateMap<DocumentoModel, Documento>()
-                .ForMember(dom => dom.DocumentoTipoId, model => model.MapFrom(m => EnumDocumentoTipoExtension.IntParseDocumentoTipo(m.DocumentoTipo)));
+                .ForMember(dom => dom.DocumentoTipo, model => model.MapFrom(m => EnumDocumentoTipoExtension.IntParseDocumentoTipo(m.DocumentoTipo)));
             #endregion
         }
     }

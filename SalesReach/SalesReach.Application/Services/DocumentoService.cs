@@ -31,7 +31,7 @@ namespace SalesReach.Application.Services
             {
                 documento.Buscar(documento.PessoaId,
                                  documento.Codigo,
-                                 documento.DocumentoTipoId,
+                                 documento.DocumentoTipo,
                                  documento.NumeroDocumento,
                                  documento.Status,
                                  documento.DataAtualizacao,
@@ -47,7 +47,7 @@ namespace SalesReach.Application.Services
             var documento = await _documentoRepository.BuscarPorPessoaIdAsync(pessoaId);
             documento.Buscar(documento.PessoaId,
                              documento.Codigo,
-                             documento.DocumentoTipoId,
+                             documento.DocumentoTipo,
                              documento.NumeroDocumento,
                              documento.Status,
                              documento.DataAtualizacao,

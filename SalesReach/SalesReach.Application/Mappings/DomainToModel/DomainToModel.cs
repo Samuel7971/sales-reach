@@ -12,7 +12,7 @@ namespace SalesReach.Application.Mappings.DomainToModel
         {
             CreateMap<Pessoa, PessoaModel>();
             CreateMap<Documento,  DocumentoModel>()
-                .ForMember(model => model.DocumentoTipo, dom => dom.MapFrom(d => EnumDocumentoTipoExtension.ToStringDocumentoTipo(d.DocumentoTipoId)));
+                .ForMember(model => model.DocumentoTipo, dom => dom.MapFrom(d => EnumDocumentoTipoExtension.ToStringDocumentoTipo(d.DocumentoTipo)));
             CreateMap<Endereco, EnderecoModel>();
         }
     }

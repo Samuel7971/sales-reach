@@ -19,7 +19,7 @@ namespace SalesReach.Application.Models
             {
                 PessoaId = documento.PessoaId,
                 Codigo = documento.Codigo,
-                DocumentoTipo = EnumDocumentoTipoExtension.ToStringDocumentoTipo(documento.DocumentoTipoId),
+                DocumentoTipo = EnumDocumentoTipoExtension.ToStringDocumentoTipo(documento.DocumentoTipo),
                 NumeroDocumento = documento.NumeroDocumento,
                 Status = documento.Status,
                 DataAtualizacao = documento.DataAtualizacao,
