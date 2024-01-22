@@ -1,4 +1,5 @@
-﻿using SalesReach.Domain.Validations;
+﻿using SalesReach.Domain.Utils;
+using SalesReach.Domain.Validations;
 using SalesReach.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -46,7 +47,8 @@ namespace SalesReach.Domain.Entities
             DomainValidationException.When(!EhValidaDataNascimento(dataNascimento), "Data Nascimento informada é inválida.");
         }
 
-        protected static void EhValido(int id) => DomainValidationException.When(id <= 0, "Obrigatório informar Id.");
+        protected static void EhValido(int id) 
+            => DomainValidationException.When(id <= 0, "Obrigatório informar Id.");
             
         public override bool Equals(object obj)
         {
@@ -74,17 +76,17 @@ namespace SalesReach.Domain.Entities
             => dataNascimento <= DateTime.Now.AddYears(-16);
 
         public static implicit operator string(Pessoa pessoa)
-            => $@"{pessoa.Id}, {pessoa.Nome}, {pessoa.DataNascimento}, {pessoa.DataAtualizacao}, {pessoa.DataCadastro}";
+            => $@"{pessoa.Id}, {pessoa.Nome}, {string.Format("dd-MM-yyyy", pessoa.DataNascimento)}, {ToConvert.DateTimeNullable(pessoa.DataAtualizacao)}, {ToConvert.DateTimeNullable(pessoa.DataCadastro)}";
 
-        public static implicit operator Pessoa(string input)
+        public static implicit operator Pessoa(string strPessoa)
         {
-            var data = input.Split(',');
+            var data = strPessoa.Split(',');
             return new Pessoa(
                                  id: int.Parse(data[0]),
                                  nome: data[1],
-                                 dataNascimento: DateTime.Parse(data[2]),
-                                 dataAtualizacao: data[3] != null ? DateTime.Parse(data[3]) : DateTime.Parse(data[4]),
-                                 dataCadastro: DateTime.Parse(data[4])
+                                 dataNascimento: ToConvert.StringToDateTime(data[2]),
+                                 dataAtualizacao: ToConvert.StringNullable(data[3]),
+                                 dataCadastro: ToConvert.StringNullable(data[4])
                               );
         }
     }

@@ -1,4 +1,6 @@
 ﻿using SalesReach.Domain.Enums;
+using SalesReach.Domain.Enums.Extensions;
+using SalesReach.Domain.Utils;
 using SalesReach.Domain.Validations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
@@ -13,11 +15,11 @@ namespace SalesReach.Domain.ValueObjects
         public string NumeroDocumento { get; private set; }
 
 
-        private Documento(int pessoaId, EnumDocumentoTipo documentoTipoId, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime? dataCadastro) 
+        private Documento(int pessoaId, EnumDocumentoTipo documentoTipo, string numeroDocumento, bool status, DateTime? dataAtualizacao, DateTime? dataCadastro) 
             : base(status, dataAtualizacao, dataCadastro)
         {
             PessoaId = pessoaId;
-            DocumentoTipo = documentoTipoId;
+            DocumentoTipo = documentoTipo;
             NumeroDocumento = numeroDocumento;
         }
 
@@ -93,15 +95,24 @@ namespace SalesReach.Domain.ValueObjects
             return numero;
         }
 
-        public override int GetHashCode() => base.GetHashCode();
+        public static bool EhValidoNumeroDocumento(string numeroDocumento) 
+            => Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$") || 
+               Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$");
 
-        public static bool EhValidoNumeroDocumento(string numeroDocumento)
+        public static implicit operator string(Documento documento)
+            => $@"{documento.PessoaId}, {documento.DocumentoTipo.DisplayName()}, {NormalizarNumeroDocumento((int)documento.DocumentoTipo, documento.NumeroDocumento)}, {ToConvert.DateTimeNullable(documento.DataAtualizacao)}, {ToConvert.DateTimeNullable(documento.DataCadastro)}";
+
+        public static implicit operator Documento(string strDocumento)
         {
-            if (Regex.IsMatch(numeroDocumento, "^([0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2})$")
-                || Regex.IsMatch(numeroDocumento, "^([0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}\\-?[0-9]{2})?$")
-               ) return true;
-
-            return false;
+            var data = strDocumento.Split(',');
+            return new Documento(
+                           pessoaId: int.Parse(data[0]),
+                           documentoTipo: VerificaDocumentoTipo(data[3]),
+                           numeroDocumento: ReplaceNumeroDocumento(data[3]),
+                           status: bool.Parse(data[4]),
+                           dataAtualizacao: ToConvert.StringNullable(data[5]),
+                           dataCadastro: ToConvert.StringNullable(data[6])
+                          );
         }
     }
 }
